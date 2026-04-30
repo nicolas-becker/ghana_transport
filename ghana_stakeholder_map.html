@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghana Transport Sector — Stakeholder Map</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #f4fbff;
+    --bg2: rgba(255, 255, 255, 0.9);
+    --border: rgba(52, 92, 138, 0.2);
+    --text: #1f334d;
+    --text-dim: #406285;
+    --text-faint: #6786a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(circle at 18% 16%, #d8f3ff 0%, rgba(216, 243, 255, 0) 42%),
+      radial-gradient(circle at 82% 84%, #ffeecf 0%, rgba(255, 238, 207, 0) 44%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; overflow: hidden;
+    height: 100vh; width: 100vw;
+  }
+  #canvas-wrap { position: absolute; inset: 0; cursor: grab; }
+  #canvas-wrap.dragging { cursor: grabbing; }
+  svg#graph { width: 100%; height: 100%; }
+
+  #header { position: absolute; top: 20px; left: 24px; pointer-events: none; }
+  #header h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim);
+  }
+  #header p { font-size: 10px; color: var(--text-faint); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
+
+  #legend {
+    position: absolute; bottom: 24px; left: 24px;
+    pointer-events: auto; background: var(--bg2);
+    border: 1px solid var(--border); padding: 13px 15px;
+    border-radius: 6px; min-width: 192px;
+  }
+  #legend h3 {
+    font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-faint); margin-bottom: 9px;
+  }
+  .leg-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: 10px; color: var(--text-dim); }
+  .leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .leg-line { width: 22px; height: 2px; flex-shrink: 0; }
+  #leg-edges { margin-top: 11px; }
+
+  #filters {
+    position: absolute; top: 20px; right: 24px;
+    pointer-events: auto; display: flex; gap: 5px;
+    flex-wrap: wrap; justify-content: flex-end; max-width: 450px;
+  }
+  .filter-btn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 4px 9px; border-radius: 3px; border: 1px solid transparent;
+    cursor: pointer; transition: opacity 0.15s; background: transparent;
+  }
+  .filter-btn.active  { opacity: 1; }
+  .filter-btn.inactive { opacity: 0.45; }
+
+  #detail {
+    position: absolute; top: 66px; left: 24px; width: 275px;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 15px; pointer-events: auto;
+    display: none; animation: fadeIn 0.14s ease;
+  }
+  #detail.visible { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+  #detail-close {
+    position: absolute; top: 9px; right: 11px;
+    background: none; border: none; color: var(--text-faint); font-size: 15px; cursor: pointer;
+  }
+  #detail-close:hover { color: var(--text); }
+  #detail-category { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 5px; }
+  #detail-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; line-height: 1.3; }
+  #detail-abbr { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--text-faint); margin-bottom: 9px; }
+  #detail-role { font-size: 11px; color: var(--text-dim); line-height: 1.65; margin-bottom: 9px; border-left: 2px solid var(--border); padding-left: 8px; }
+  #detail-programs { font-size: 10px; color: var(--text-faint); line-height: 1.55; }
+  #detail-programs strong {
+    color: var(--text-dim); font-weight: 500; display: block; margin-bottom: 3px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 8px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  #controls {
+    position: absolute; bottom: 24px; right: 24px;
+    pointer-events: auto; display: flex; flex-direction: column; gap: 5px;
+  }
+  .ctrl-btn {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px; width: 34px; height: 34px; border-radius: 4px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .ctrl-btn:hover { border-color: rgba(52,92,138,0.45); color: var(--text); }
+</style>
+</head>
+<body>
+
+<div id="canvas-wrap">
+  <svg id="graph">
+    <defs>
+      <marker id="arr-oversight" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke-width="1.5" stroke="rgba(47,128,237,0.7)" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="arr-funding" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke-width="1.5" stroke="rgba(38,198,218,0.74)" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="arr-carbon" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke-width="1.5" stroke="rgba(39,174,96,0.74)" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="arr-neg" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke-width="1.5" stroke="rgba(242,201,76,0.82)" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="arr-coord" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1 1L7 4L1 7" fill="none" stroke-width="1.5" stroke="rgba(122,149,182,0.6)" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    <g id="zones-layer"></g>
+    <g id="edges-layer"></g>
+    <g id="nodes-layer"></g>
+  </svg>
+</div>
+
+<div id="header">
+  <h1>Ghana — Transport Sector</h1>
+  <p>Stakeholder network · public transport &amp; sustainable transportation</p>
+</div>
+
+<div id="filters">
+  <button class="filter-btn active" data-group="all"  style="color:#1f334d;border-color:rgba(52,92,138,0.35);background:rgba(255,255,255,0.6)">All</button>
+  <button class="filter-btn active" data-group="gov"  style="color:#2f80ed;border-color:rgba(47,128,237,0.45)">Government</button>
+  <button class="filter-btn active" data-group="ops"  style="color:#f2994a;border-color:rgba(242,153,74,0.45)">Formal ops</button>
+  <button class="filter-btn active" data-group="para" style="color:#d9aa1f;border-color:rgba(217,170,31,0.45)">Paratransit</button>
+  <button class="filter-btn active" data-group="priv" style="color:#27ae60;border-color:rgba(39,174,96,0.45)">Private EV</button>
+  <button class="filter-btn active" data-group="know" style="color:#7b7ce0;border-color:rgba(123,124,224,0.45)">Research</button>
+  <button class="filter-btn active" data-group="fund" style="color:#26c6da;border-color:rgba(38,198,218,0.45)">Funders</button>
+</div>
+
+<div id="detail">
+  <button id="detail-close">×</button>
+  <div id="detail-category"></div>
+  <div id="detail-name"></div>
+  <div id="detail-abbr"></div>
+  <div id="detail-role"></div>
+  <div id="detail-programs"><strong>Key programmes / links</strong><span id="detail-prog-text"></span></div>
+</div>
+
+<div id="legend">
+  <h3>Actor type</h3>
+  <div class="leg-row"><div class="leg-dot" style="background:#2f80ed"></div>Government &amp; regulators</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#f2994a"></div>Formal operators</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#d9aa1f"></div>Paratransit associations</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#27ae60"></div>Private EV actors</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#7b7ce0"></div>Research &amp; knowledge</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#26c6da"></div>Funders &amp; int'l partners</div>
+  <div id="leg-edges">
+    <h3>Relationships</h3>
+    <div class="leg-row"><div class="leg-line" style="background:#2f80ed;opacity:0.82"></div>Formal oversight</div>
+    <div class="leg-row"><div class="leg-line" style="background:#26c6da;opacity:0.82"></div>Funding flow</div>
+    <div class="leg-row"><div class="leg-line" style="background:#27ae60;opacity:0.82"></div>Carbon market link</div>
+    <div class="leg-row"><div class="leg-line" style="background:#d9aa1f;opacity:0.82"></div>Negotiation / coordination</div>
+    <div class="leg-row"><div class="leg-line" style="background:rgba(122,149,182,0.62)"></div>Interministerial coordination</div>
+  </div>
+</div>
+
+<div id="controls">
+  <button class="ctrl-btn" id="zoom-in">+</button>
+  <button class="ctrl-btn" id="zoom-out">−</button>
+  <button class="ctrl-btn" id="zoom-reset" style="font-size:11px">⌂</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// NODES
+// ─────────────────────────────────────────────────────────────────────────────
+const nodes = [
+  // Government & regulators
+  { id:'MoT', label:'Ministry of Transport', abbr:'MoT', group:'gov',
+    role:'Lead ministry for transport policy and sector coordination. Owner of the National EV Policy and chair of the EV Policy Working Group. Oversees MMT and DVLA. Active dialogue with transport associations on fares and reform.',
+    programs:'National EV Policy (2023); EV Policy Working Group (est. 2024); Tap n\'Go (2024); E-bus pilot (Nov 2024)' },
+  { id:'MLGCRA', label:'Ministry of Local Government', abbr:'MLGCRA', group:'gov',
+    role:'Responsible for local governance and urban mobility in Greater Accra. Organisationally oversees GAPTE and implements GUMAP. Key coordination interface between national policy and city-level operations.',
+    programs:'GUMAP (2016–2025); GUMAP II (from 2026, in state budget); GAPTE oversight' },
+  { id:'MoEnGT', label:'Ministry of Energy', abbr:'MoEnGT', group:'gov',
+    role:'Energy policy and oversight of the Energy Commission. Co-driver of the Drive Electric Initiative and EV charging infrastructure agenda. Works with MoT and MESTI on transition pathways.',
+    programs:'National Energy Transition Framework; EV infrastructure development; DEI co-governance' },
+  { id:'MESTI', label:'Ministry of Environment', abbr:'MESTI', group:'gov',
+    role:'Official climate and environment policy body. Authorisation authority for Ghana\'s Article 6 carbon market activities. Coordinates NDC agenda and EV-related climate processes. Oversees EPA.',
+    programs:'NDC & climate agenda; Article 6.2 cooperative approach governance; EPA oversight' },
+  { id:'EnergyComm', label:'Energy Commission', abbr:'Energy Comm.', group:'gov',
+    role:'Regulates EV charging infrastructure, energy use and battery-swap systems. Operates the Drive Electric Initiative since 2019. Issues mandatory permits for public charging and swap operators — a regulatory gateway for all EV market actors.',
+    programs:'Drive Electric Initiative (2019–); EV Baseline Survey 2022; Public charging & swap register; Permit framework for charging/swap' },
+  { id:'CMO', label:'Carbon Market Office', abbr:'CMO @ EPA', group:'gov',
+    role:'Technical secretariat for Ghana\'s international carbon market activities, hosted at EPA under MESTI governance. Manages project authorisation, MRV and the national registry. Interface for Article 6 bilateral and multilateral cooperation.',
+    programs:'Ghana–Sweden Article 6 cooperation; Project MRV & registry; Project authorisation & matching' },
+  { id:'DVLA', label:'DVLA', abbr:'DVLA', group:'gov',
+    role:'Driver and Vehicle Licensing Authority under MoT. Manages vehicle registration, roadworthiness testing and driver certification. Every EV and bus entering operational service must pass through this system.',
+    programs:'DVLA Act 1999 (Act 569); Vehicle registration; Roadworthiness; Driver certification' },
+
+  // Formal operators
+  { id:'GAPTE', label:'GAPTE', abbr:'GAPTE', group:'ops',
+    role:'Greater Accra Passenger Transport Executive. Plans, manages and modernises urban public transport in Greater Accra. Operating framework for Aayalolo/QBS. Organisationally under MLGCRA — not MoT — which creates a key coordination interface between urban operations and national transport policy.',
+    programs:'Aayalolo/QBS bus rapid transit; GUMAP primary beneficiary; BRT/QBS institutionalisation; Paratransit mapping' },
+  { id:'MMT', label:'Metro Mass Transit', abbr:'MMT', group:'ops',
+    role:'Largest formal bus operator with a national network. State-supported public-private company. Selected as pilot operator for Ghana\'s first public e-bus deployment. Carrier of Tap n\'Go digital ticketing. A testing ground for state-driven digitalisation and electrification.',
+    programs:'Tap n\'Go cashless ticketing (2024); E-bus pilot Accra (Nov 2024); National bus services' },
+
+  // Paratransit associations
+  { id:'GPRTU', label:'GPRTU', abbr:'GPRTU', group:'para',
+    role:'Ghana Private Road Transport Union. Largest representative body for private road transport operators, especially trotro (minibus) drivers. Central voice of the informal and semi-formal paratransit sector. Must be actively engaged in any realistic electrification strategy.',
+    programs:'Fare negotiations with MoT; Sector discipline & compliance; Digitalisation & reform dialogue' },
+  { id:'PROTOA', label:'PROTOA', abbr:'PROTOA', group:'para',
+    role:'Second-largest transport organisation. Represents private vehicle operators and owners. Member of the Ghana Road Transport Coordinating Council. Part of the private operator bloc alongside GPRTU.',
+    programs:'Operator & owner representation; Ghana Road Transport Coordinating Council membership' },
+
+  // Private EV actors
+  { id:'SolarTaxi', label:'Solar Taxi', abbr:'Solar Taxi', group:'priv',
+    role:'Most visible EV market actor in Ghana. Active in EV sales, fleet management, charging infrastructure and battery development. Anchored in the official Ghana–Sweden Article 6 framework as of 2025. Key actor for 2/3-wheeler and fleet electrification pathways.',
+    programs:'EV fleet & sales; Charging infrastructure; Article 6 programme with Swedish Energy Agency & South Pole (2025)' },
+  { id:'SmartTransyt', label:'SmartTransyt', abbr:'SmartTransyt', group:'priv',
+    role:'Private e-bus and software platform for urban passenger transport in Accra. Relevant at the intersection of paratransit modernisation, digital routing and cashless payment. No formal regulatory mandate.',
+    programs:'Electric bus services (Accra); Routing optimisation; Cashless payments; Passenger app' },
+  { id:'DriveEV', label:'DriveEV GH', abbr:'DriveEV GH', group:'priv',
+    role:'EV dealer and provider of charging and service solutions. Building a private EV ecosystem with infrastructure and servicing partnerships. Operates within the Energy Commission regulatory framework.',
+    programs:'EV sales; Home & public charging; Service solutions; Infrastructure partnerships' },
+
+  // Research & knowledge
+  { id:'RCEES', label:'RCEES / UEnR', abbr:'RCEES', group:'know',
+    role:'Regional Centre for Energy and Environmental Sustainability at UEnR. Key policy and knowledge actor in the EV field. Leads the technical preparation of the EV Policy Working Group. Organises government–industry consultations and coordinates with UNEP/NDC Action.',
+    programs:'EV Policy Working Group (technical lead); Regulatory dialogues; MoNaL research; UNEP/NDC Action collaboration' },
+  { id:'KNUST', label:'KNUST', abbr:'KNUST', group:'know',
+    role:'Kwame Nkrumah University of Science and Technology. Capacity building and research in transport planning and sustainable mobility. Direct GUMAP beneficiary, training professionals for the urban transport system.',
+    programs:'CUMT/TRECK; MSc Transport Systems; GUMAP training programme; SECO & EPFL collaboration' },
+  { id:'CEDA', label:'CEDA', abbr:'CEDA', group:'know',
+    role:'Centre for Extractives and Development Africa. Policy research on just and viable transition. 2026 gap analysis highlights high market potential for electric 2/3-wheelers, constrained by import tariffs, regulatory ambiguity and institutional fragmentation.',
+    programs:'E-2/3W gap analysis (2026); Fiscal incentives research; GESI & political economy' },
+
+  // Funders & international partners
+  { id:'SECO', label:'SECO', abbr:'SECO', group:'fund',
+    role:'Swiss State Secretariat for Economic Affairs. Most important operational donor for urban mobility governance in Greater Accra. Finances GUMAP through MLGCRA, strengthening GAPTE, MMDAs and KNUST.',
+    programs:'GUMAP (2016–2025); GUMAP II (from 2026, confirmed in state budget)' },
+  { id:'AFD', label:'AFD', abbr:'AFD', group:'fund',
+    role:'Agence Française de Développement. Historically central funder of urban mobility reform in Accra and Kumasi. Co-financed the institutional and infrastructure base for BRT/QBS and GAPTE. Re-engaged in e-bus financing discussions in 2023. Co-financed with EU a Mobility Plan for Kumasi — the document currently remains shelved under the new administration.',
+    programs:'Urban mobility project 2008–2017; E-bus financing consultations (2023); EU-AFD Kumasi Mobility Plan (shelved)' },
+  { id:'WorldBank', label:'World Bank', abbr:'World Bank', group:'fund',
+    role:'Formative architect of Accra urban transport reform. Financed the Ghana Urban Transport Project and BRT institutional reforms. Co-financed with EU the BRT in Kumasi — the new administration considers it too costly and the project is on hold, pending realignment by MoT.',
+    programs:'Ghana Urban Transport Project; BRT/QBS institutional reform; ACE framework (RCEES origin); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
+  { id:'EU', label:'European Union', abbr:'EU', group:'fund',
+    role:'Strategic development partner for green growth and sustainable urban mobility. Co-financed with AFD a Mobility Plan for Kumasi — currently shelved by the new administration. Co-financed with World Bank the Kumasi BRT — new administration considers it too costly; project is on hold pending realignment by MoT.',
+    programs:'Team Europe / Global Gateway; EU-AFD Kumasi Mobility Plan (shelved); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
+  { id:'UNEP', label:'UNEP / CTCN', abbr:'UNEP/CTCN', group:'fund',
+    role:'Created the e-bus roadmap and market study for Accra and Kumasi in 2022. Conducted stakeholder and financing missions in 2023. Organised a Ghana–Senegal learning exchange in 2024. Key assembler of the de-facto e-bus project coalition, bringing MoT, EPA, Energy Commission, MMT, GAPTE and financing actors into shared dialogue.',
+    programs:'E-bus roadmap & market study (2022); Stakeholder & financing missions (2023); Ghana–Senegal learning exchange (2024)' },
+  { id:'SwedEA', label:'Swedish Energy Agency', abbr:'SwedEA', group:'fund',
+    role:'Article 6 bilateral partner for Ghana–Sweden carbon market cooperation. Core counterpart for Solar Taxi\'s EV programme under the official Article 6 framework established in 2025.',
+    programs:'Ghana–Sweden Article 6 bilateral cooperation (2025); Solar Taxi EV programme' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POSITIONS
+// Layout bands (top → bottom):
+//   Band 1 (y≈60):   Funders (compact top band)
+//   Band 2 (y≈280):  Government cluster (center)
+//   Band 3 (y≈300-560): Research (left vertical lane)
+//   Band 4 (y≈620+): Operators split into non-overlapping lanes
+// ─────────────────────────────────────────────────────────────────────────────
+const POS = {
+  // ── Band 1: Funders ──
+  SECO:       { x: 170,  y: 64  },
+  AFD:        { x: 430,  y: 56  },
+  EU:         { x: 625,  y: 56  },
+  WorldBank:  { x: 820,  y: 56  },
+  UNEP:       { x: 1060, y: 64  },
+  SwedEA:     { x: 1230, y: 95  },
+
+  // ── Band 2: Government cluster (center) ──
+  MLGCRA:     { x: 560,  y: 280 },
+  MoT:        { x: 720,  y: 265 },
+  MoEnGT:     { x: 880,  y: 280 },
+  MESTI:      { x: 1000, y: 285 },
+
+  // ── Research column (left) ──
+  RCEES:      { x: 190,  y: 300 },
+  KNUST:      { x: 170,  y: 430 },
+  CEDA:       { x: 170,  y: 520 },
+
+  // ── Band 3: Government agencies ──
+  DVLA:       { x: 620,  y: 415 },
+  EnergyComm: { x: 800,  y: 415 },
+  CMO:        { x: 980,  y: 415 },
+
+  // ── Band 4: Operators (separated lanes) ──
+  GAPTE:      { x: 520,  y: 620 },
+  MMT:        { x: 690,  y: 650 },
+  GPRTU:      { x: 210,  y: 660 },
+  PROTOA:     { x: 330,  y: 710 },
+  SmartTransyt:{ x: 930, y: 620 },
+  SolarTaxi:  { x: 1090, y: 620 },
+  DriveEV:    { x: 1240, y: 680 },
+};
+
+nodes.forEach(n => { n.x = POS[n.id].x; n.y = POS[n.id].y; });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EDGES
+// ─────────────────────────────────────────────────────────────────────────────
+const edges = [
+  // Formal oversight (blue)
+  { from:'MoT',         to:'MMT',          type:'oversight' },
+  { from:'MoT',         to:'DVLA',         type:'oversight' },
+  { from:'MLGCRA',      to:'GAPTE',        type:'oversight' },
+  { from:'MoEnGT',      to:'EnergyComm',   type:'oversight' },
+  { from:'MESTI',       to:'CMO',          type:'oversight' },
+  { from:'EnergyComm',  to:'SolarTaxi',    type:'oversight' },
+  { from:'EnergyComm',  to:'DriveEV',      type:'oversight' },
+  { from:'EnergyComm',  to:'SmartTransyt', type:'oversight' },
+  { from:'DVLA',        to:'MMT',          type:'oversight' },
+  { from:'DVLA',        to:'SolarTaxi',    type:'oversight' },
+
+  // Interministerial coordination (grey solid, no dashes)
+  { from:'MoT',    to:'MoEnGT',  type:'coord' },
+  { from:'MoT',    to:'MESTI',   type:'coord' },
+  { from:'MoT',    to:'MLGCRA',  type:'coord' },
+  { from:'RCEES',  to:'MoT',     type:'coord' },
+  { from:'KNUST',  to:'GAPTE',   type:'coord' },
+  { from:'CEDA',   to:'MoT',     type:'coord' },
+
+  // Funding flows (cyan)
+  { from:'SECO',      to:'MLGCRA',   type:'funding' },
+  { from:'SECO',      to:'GAPTE',    type:'funding' },
+  { from:'SECO',      to:'KNUST',    type:'funding' },
+  { from:'AFD',       to:'GAPTE',    type:'funding' },
+  { from:'AFD',       to:'MoT',      type:'funding' },
+  { from:'WorldBank', to:'GAPTE',    type:'funding' },
+  { from:'WorldBank', to:'RCEES',    type:'funding' },
+  { from:'UNEP',      to:'MMT',      type:'funding' },
+  { from:'UNEP',      to:'GAPTE',    type:'funding' },
+  { from:'UNEP',      to:'MoT',      type:'funding' },
+  // EU co-funding
+  { from:'EU',        to:'AFD',      type:'funding' },
+  { from:'EU',        to:'WorldBank',type:'funding' },
+
+  // Carbon market (green)
+  { from:'SwedEA',  to:'CMO',      type:'carbon' },
+  { from:'CMO',     to:'SolarTaxi',type:'carbon' },
+  { from:'SwedEA',  to:'SolarTaxi',type:'carbon' },
+
+  // Negotiation / coordination (amber)
+  { from:'MoT',   to:'GPRTU',  type:'negotiation' },
+  { from:'GPRTU', to:'MoT',    type:'negotiation' },
+  { from:'MoT',   to:'PROTOA', type:'negotiation' },
+  { from:'GPRTU', to:'PROTOA', type:'negotiation' },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STYLE MAPS
+// ─────────────────────────────────────────────────────────────────────────────
+const GROUP_COLOR = {
+  gov:'#2f80ed', ops:'#f2994a', para:'#d9aa1f',
+  priv:'#27ae60', know:'#7b7ce0', fund:'#26c6da',
+};
+const GROUP_LABEL = {
+  gov:'Government & regulator', ops:'Formal operator',
+  para:'Paratransit association', priv:'Private EV actor',
+  know:'Research & knowledge', fund:'Funder / int\'l partner',
+};
+const EDGE_STYLE = {
+  oversight:   { stroke:'rgba(47,128,237,0.45)',  width:1.3, marker:'url(#arr-oversight)', dash:'' },
+  funding:     { stroke:'rgba(38,198,218,0.54)',  width:1.8, marker:'url(#arr-funding)',   dash:'' },
+  carbon:      { stroke:'rgba(39,174,96,0.56)',   width:1.3, marker:'url(#arr-carbon)',    dash:'' },
+  negotiation: { stroke:'rgba(217,170,31,0.65)',  width:1.3, marker:'url(#arr-neg)',       dash:'' },
+  coord:       { stroke:'rgba(122,149,182,0.35)', width:1.0, marker:'url(#arr-coord)',     dash:'' },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+const svg    = document.getElementById('graph');
+const zLayer = document.getElementById('zones-layer');
+const eLayer = document.getElementById('edges-layer');
+const nLayer = document.getElementById('nodes-layer');
+const W = 1400, H = 760;
+svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+const nodeMap = {};
+nodes.forEach(n => nodeMap[n.id] = n);
+
+function nodeR(n) {
+  return ['MoT','MLGCRA','MoEnGT','MESTI'].includes(n.id) ? 34 : 27;
+}
+
+function hexToRgb(hex) {
+  const clean = hex.replace('#', '');
+  return {
+    r: parseInt(clean.slice(0, 2), 16),
+    g: parseInt(clean.slice(2, 4), 16),
+    b: parseInt(clean.slice(4, 6), 16),
+  };
+}
+
+function drawGroupZones() {
+  const groupTitles = {
+    gov: 'GOVERNMENT & REGULATORS',
+    ops: 'FORMAL OPERATORS',
+    para: 'PARATRANSIT ASSOCIATIONS',
+    priv: 'PRIVATE EV ACTORS',
+    know: 'RESEARCH & KNOWLEDGE',
+    fund: 'FUNDERS & INT\'L PARTNERS',
+  };
+  const groupPadding = {
+    gov: { x: 56, y: 52 },
+    ops: { x: 44, y: 44 },
+    para: { x: 42, y: 38 },
+    priv: { x: 46, y: 42 },
+    know: { x: 42, y: 42 },
+    fund: { x: 40, y: 20 },
+  };
+  const groupOrder = ['fund', 'know', 'gov', 'ops', 'para', 'priv'];
+
+  groupOrder.forEach(group => {
+    const groupNodes = nodes.filter(n => n.group === group);
+    if (!groupNodes.length) return;
+
+    const minX = Math.min(...groupNodes.map(n => n.x - nodeR(n)));
+    const maxX = Math.max(...groupNodes.map(n => n.x + nodeR(n)));
+    const minY = Math.min(...groupNodes.map(n => n.y - nodeR(n)));
+    const maxY = Math.max(...groupNodes.map(n => n.y + nodeR(n)));
+    const pad = groupPadding[group] || { x: 40, y: 40 };
+    const rgb = hexToRgb(GROUP_COLOR[group]);
+
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', minX - pad.x);
+    rect.setAttribute('y', minY - pad.y);
+    rect.setAttribute('width', (maxX - minX) + pad.x * 2);
+    rect.setAttribute('height', (maxY - minY) + pad.y * 2);
+    rect.setAttribute('rx', 20);
+    rect.setAttribute('fill', `rgba(${rgb.r},${rgb.g},${rgb.b},0.05)`);
+    rect.setAttribute('stroke', `rgba(${rgb.r},${rgb.g},${rgb.b},0.28)`);
+    rect.setAttribute('stroke-width', '1.3');
+    rect.setAttribute('stroke-dasharray', '6 5');
+    rect.setAttribute('pointer-events', 'none');
+    zLayer.appendChild(rect);
+
+    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    label.setAttribute('x', minX - pad.x + 12);
+    label.setAttribute('y', minY - pad.y + 16);
+    label.setAttribute('fill', `rgba(${rgb.r},${rgb.g},${rgb.b},0.84)`);
+    label.setAttribute('font-family', 'IBM Plex Mono, monospace');
+    label.setAttribute('font-size', '8');
+    label.setAttribute('font-weight', '500');
+    label.setAttribute('letter-spacing', '0.11em');
+    label.textContent = groupTitles[group] || group.toUpperCase();
+    label.setAttribute('pointer-events', 'none');
+    zLayer.appendChild(label);
+  });
+}
+
+drawGroupZones();
+
+// Draw edges
+edges.forEach(e => {
+  const a = nodeMap[e.from], b = nodeMap[e.to];
+  if (!a || !b) return;
+  const dx = b.x-a.x, dy = b.y-a.y, dist = Math.hypot(dx,dy);
+  const ux = dx/dist, uy = dy/dist;
+  const st = EDGE_STYLE[e.type] || EDGE_STYLE.coord;
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1', a.x + ux*nodeR(a));
+  line.setAttribute('y1', a.y + uy*nodeR(a));
+  line.setAttribute('x2', b.x - ux*(nodeR(b)+2));
+  line.setAttribute('y2', b.y - uy*(nodeR(b)+2));
+  line.setAttribute('stroke', st.stroke);
+  line.setAttribute('stroke-width', st.width);
+  line.setAttribute('marker-end', st.marker);
+  // NO dashes on any edge type
+  line.dataset.from = e.from;
+  line.dataset.to   = e.to;
+  line.dataset.type = e.type;
+  eLayer.appendChild(line);
+});
+
+// Draw nodes
+nodes.forEach(n => {
+  const r = nodeR(n);
+  const c = GROUP_COLOR[n.group];
+  const [rr,gg,bb] = [1,3,5].map(i=>parseInt(c.slice(i,i+2),16));
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('transform', `translate(${n.x},${n.y})`);
+  g.style.cursor = 'pointer';
+  g.dataset.id = n.id;
+
+  const glow = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  glow.setAttribute('r', r+7);
+  glow.setAttribute('fill','none');
+  glow.setAttribute('stroke', c);
+  glow.setAttribute('stroke-width','0');
+  glow.setAttribute('opacity','0.35');
+  g.appendChild(glow);
+
+  const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  circ.setAttribute('r', r);
+  circ.setAttribute('fill', `rgba(${rr},${gg},${bb},0.13)`);
+  circ.setAttribute('stroke', c);
+  circ.setAttribute('stroke-width','1.5');
+  g.appendChild(circ);
+
+  const abbr = document.createElementNS('http://www.w3.org/2000/svg','text');
+  abbr.setAttribute('text-anchor','middle');
+  abbr.setAttribute('dominant-baseline','central');
+  abbr.setAttribute('fill', c);
+  abbr.setAttribute('font-family','IBM Plex Mono, monospace');
+  abbr.setAttribute('font-weight','500');
+  const al = n.abbr.length;
+  abbr.setAttribute('font-size', al>8?'7': al>6?'8': al>4?'9':'10.5');
+  abbr.textContent = n.abbr;
+  g.appendChild(abbr);
+
+  const lbl = document.createElementNS('http://www.w3.org/2000/svg','text');
+  lbl.setAttribute('y', r+12);
+  lbl.setAttribute('text-anchor','middle');
+  lbl.setAttribute('fill','rgba(31,51,77,0.65)');
+  lbl.setAttribute('font-family','IBM Plex Sans, sans-serif');
+  lbl.setAttribute('font-size','9.5');
+  const words = n.label.split(' ');
+  if (n.label.length > 13 && words.length > 1) {
+    const mid = Math.ceil(words.length/2);
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg','tspan');
+    t1.setAttribute('x','0'); t1.setAttribute('dy','0');
+    t1.textContent = words.slice(0,mid).join(' ');
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg','tspan');
+    t2.setAttribute('x','0'); t2.setAttribute('dy','11');
+    t2.textContent = words.slice(mid).join(' ');
+    lbl.appendChild(t1); lbl.appendChild(t2);
+  } else {
+    lbl.textContent = n.label;
+  }
+  g.appendChild(lbl);
+
+  g.addEventListener('mouseenter', () => {
+    circ.setAttribute('fill', `rgba(${rr},${gg},${bb},0.25)`);
+    glow.setAttribute('stroke-width','2');
+    dimOthers(n.id, true);
+  });
+  g.addEventListener('mouseleave', () => {
+    circ.setAttribute('fill', `rgba(${rr},${gg},${bb},0.13)`);
+    glow.setAttribute('stroke-width','0');
+    dimOthers(n.id, false);
+  });
+  g.addEventListener('click', ev => { ev.stopPropagation(); openDetail(n); });
+
+  nLayer.appendChild(g);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────────────────────────────────────
+function dimOthers(id, on) {
+  eLayer.querySelectorAll('line').forEach(l => {
+    const hit = l.dataset.from===id || l.dataset.to===id;
+    l.style.opacity = on ? (hit ? '1' : '0.05') : '';
+  });
+  nLayer.querySelectorAll('g[data-id]').forEach(g => {
+    if (g.dataset.id===id) return;
+    const hit = edges.some(e=>(e.from===id&&e.to===g.dataset.id)||(e.to===id&&e.from===g.dataset.id));
+    g.style.opacity = on ? (hit ? '1' : '0.14') : '';
+  });
+}
+
+function openDetail(n) {
+  document.getElementById('detail-category').textContent = GROUP_LABEL[n.group];
+  document.getElementById('detail-category').style.color = GROUP_COLOR[n.group];
+  document.getElementById('detail-name').textContent = n.label;
+  document.getElementById('detail-abbr').textContent = n.abbr !== n.label ? n.abbr : '';
+  document.getElementById('detail-role').textContent = n.role;
+  document.getElementById('detail-prog-text').textContent = '\n' + n.programs;
+  document.getElementById('detail').classList.add('visible');
+  nLayer.querySelectorAll('g[data-id]').forEach(g => {
+    g.style.opacity = g.dataset.id===n.id ? '1' : '0.22';
+  });
+  eLayer.querySelectorAll('line').forEach(l => {
+    const hit = l.dataset.from===n.id || l.dataset.to===n.id;
+    l.style.opacity = hit ? '1' : '0.04';
+  });
+}
+
+function resetHL() {
+  document.getElementById('detail').classList.remove('visible');
+  nLayer.querySelectorAll('g[data-id]').forEach(g => g.style.opacity='');
+  eLayer.querySelectorAll('line').forEach(l => l.style.opacity='');
+}
+document.getElementById('detail-close').addEventListener('click', resetHL);
+svg.addEventListener('click', resetHL);
+
+// Filters
+const active = new Set(['gov','ops','para','priv','know','fund']);
+document.querySelectorAll('.filter-btn[data-group]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const gr = btn.dataset.group;
+    if (gr === 'all') {
+      const allOn = active.size === 6;
+      active.clear();
+      if (!allOn) ['gov','ops','para','priv','know','fund'].forEach(g => active.add(g));
+      document.querySelectorAll('.filter-btn[data-group]').forEach(b => b.classList.toggle('active', !allOn));
+    } else {
+      if (active.has(gr)) { active.delete(gr); btn.classList.remove('active'); }
+      else { active.add(gr); btn.classList.add('active'); }
+    }
+    nLayer.querySelectorAll('g[data-id]').forEach(g => {
+      g.style.opacity = active.has(nodeMap[g.dataset.id].group) ? '' : '0.04';
+    });
+    eLayer.querySelectorAll('line').forEach(l => {
+      const fa = nodeMap[l.dataset.from], fb = nodeMap[l.dataset.to];
+      if (!fa||!fb) return;
+      l.style.opacity = (active.has(fa.group) && active.has(fb.group)) ? '' : '0.03';
+    });
+  });
+});
+
+// Pan & zoom
+let vx=0, vy=0, sc=1, drag=false, lx, ly;
+const wrap = document.getElementById('canvas-wrap');
+function applyT() { svg.style.transform=`translate(${vx}px,${vy}px) scale(${sc})`; svg.style.transformOrigin='0 0'; }
+wrap.addEventListener('mousedown', e => { drag=true; lx=e.clientX; ly=e.clientY; wrap.classList.add('dragging'); });
+window.addEventListener('mousemove', e => { if(!drag) return; vx+=e.clientX-lx; vy+=e.clientY-ly; lx=e.clientX; ly=e.clientY; applyT(); });
+window.addEventListener('mouseup', () => { drag=false; wrap.classList.remove('dragging'); });
+wrap.addEventListener('wheel', e => {
+  e.preventDefault();
+  const f = e.deltaY<0?1.1:0.91;
+  const r = wrap.getBoundingClientRect();
+  const mx=e.clientX-r.left, my=e.clientY-r.top;
+  vx=mx-f*(mx-vx); vy=my-f*(my-vy); sc*=f; applyT();
+}, { passive:false });
+document.getElementById('zoom-in').addEventListener('click',  () => { sc*=1.2; applyT(); });
+document.getElementById('zoom-out').addEventListener('click', () => { sc*=0.83; applyT(); });
+document.getElementById('zoom-reset').addEventListener('click', () => {
+  const vw=wrap.clientWidth, vh=wrap.clientHeight;
+  sc=Math.min(vw/W, vh/H)*0.93;
+  vx=(vw-W*sc)/2; vy=(vh-H*sc)/2; applyT();
+});
+setTimeout(() => document.getElementById('zoom-reset').click(), 60);
+
+// Touch
+let tchs={};
+wrap.addEventListener('touchstart', e => { [...e.touches].forEach(t => tchs[t.identifier]={x:t.clientX,y:t.clientY}); });
+wrap.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if(e.touches.length===1){const t=e.touches[0],p=tchs[t.identifier];if(p){vx+=t.clientX-p.x;vy+=t.clientY-p.y;applyT();}tchs[t.identifier]={x:t.clientX,y:t.clientY};}
+}, { passive:false });
+</script>
+</body>
+</html>
