@@ -60,13 +60,60 @@
     flex-wrap: wrap; justify-content: flex-end; max-width: 450px;
   }
   .filter-btn {
-    font-family: 'IBM Plex Mono', monospace; font-size: 8px;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    padding: 4px 9px; border-radius: 3px; border: 1px solid transparent;
-    cursor: pointer; transition: opacity 0.15s; background: transparent;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: opacity 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
+    background: transparent;
+    opacity: 0.45;
   }
-  .filter-btn.active  { opacity: 1; }
-  .filter-btn.inactive { opacity: 0.45; }
+
+  .filter-btn.selected {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.75);
+  }
+
+  .filter-btn.all-selected {
+    opacity: 1;
+    background: rgba(31, 51, 77, 0.08);
+    border-color: rgba(31, 51, 77, 0.35);
+    color: #1f334d;
+  }
+
+  .filter-btn[data-group="gov"].selected {
+    background: rgba(47, 128, 237, 0.12);
+    border-color: rgba(47, 128, 237, 0.55);
+  }
+
+  .filter-btn[data-group="ops"].selected {
+    background: rgba(242, 153, 74, 0.12);
+    border-color: rgba(242, 153, 74, 0.55);
+  }
+
+  .filter-btn[data-group="para"].selected {
+    background: rgba(217, 170, 31, 0.12);
+    border-color: rgba(217, 170, 31, 0.55);
+  }
+
+  .filter-btn[data-group="priv"].selected {
+    background: rgba(39, 174, 96, 0.12);
+    border-color: rgba(39, 174, 96, 0.55);
+  }
+
+  .filter-btn[data-group="know"].selected {
+    background: rgba(123, 124, 224, 0.12);
+    border-color: rgba(123, 124, 224, 0.55);
+  }
+
+  .filter-btn[data-group="fund"].selected {
+    background: rgba(38, 198, 218, 0.12);
+    border-color: rgba(38, 198, 218, 0.55);
+  }
 
   #detail {
     position: absolute; top: 66px; left: 24px; width: 275px;
@@ -190,7 +237,7 @@ const nodes = [
   { id:'MoT', label:'Ministry of Transport', abbr:'MoT', group:'gov',
     role:'Lead ministry for transport policy and sector coordination. Owner of the National EV Policy and chair of the EV Policy Working Group. Oversees MMT and DVLA. Active dialogue with transport associations on fares and reform.',
     programs:'National EV Policy (2023); EV Policy Working Group (est. 2024); Tap n\'Go (2024); E-bus pilot (Nov 2024)' },
-  { id:'MLGCRA', label:'Ministry of Local Government', abbr:'MLGCRA', group:'gov',
+  { id:'MLGRD', label:'Ministry of Local Government and Rural Development', abbr:'MLGRD', group:'gov',
     role:'Responsible for local governance and urban mobility in Greater Accra. Organisationally oversees GAPTE and implements GUMAP. Key coordination interface between national policy and city-level operations.',
     programs:'GUMAP (2016–2025); GUMAP II (from 2026, in state budget); GAPTE oversight' },
   { id:'MoEnGT', label:'Ministry of Energy', abbr:'MoEnGT', group:'gov',
@@ -200,7 +247,7 @@ const nodes = [
     role:'Official climate and environment policy body. Authorisation authority for Ghana\'s Article 6 carbon market activities. Coordinates NDC agenda and EV-related climate processes. Oversees EPA.',
     programs:'NDC & climate agenda; Article 6.2 cooperative approach governance; EPA oversight' },
   { id:'EnergyComm', label:'Energy Commission', abbr:'Energy Comm.', group:'gov',
-    role:'Regulates EV charging infrastructure, energy use and battery-swap systems. Operates the Drive Electric Initiative since 2019. Issues mandatory permits for public charging and swap operators — a regulatory gateway for all EV market actors.',
+    role:'Regulates EV charging infrastructure, energy use and battery-swap systems. Operates the Drive Electric Initiative since 2019. Issues mandatory permits for public charging and swap operators; a regulatory gateway for all EV market actors.',
     programs:'Drive Electric Initiative (2019–); EV Baseline Survey 2022; Public charging & swap register; Permit framework for charging/swap' },
   { id:'CMO', label:'Carbon Market Office', abbr:'CMO @ EPA', group:'gov',
     role:'Technical secretariat for Ghana\'s international carbon market activities, hosted at EPA under MESTI governance. Manages project authorisation, MRV and the national registry. Interface for Article 6 bilateral and multilateral cooperation.',
@@ -211,19 +258,19 @@ const nodes = [
 
   // Formal operators
   { id:'GAPTE', label:'GAPTE', abbr:'GAPTE', group:'ops',
-    role:'Greater Accra Passenger Transport Executive. Plans, manages and modernises urban public transport in Greater Accra. Operating framework for Aayalolo/QBS. Organisationally under MLGCRA — not MoT — which creates a key coordination interface between urban operations and national transport policy.',
-    programs:'Aayalolo/QBS bus rapid transit; GUMAP primary beneficiary; BRT/QBS institutionalisation; Paratransit mapping' },
+    role:'Greater Accra Passenger Transport Executive. Plans, manages and modernises urban public transport in Greater Accra. Operating framework for Aayalolo. Organisationally under MLGRD — not MoT — which creates a key coordination interface between urban operations and national transport policy.',
+    programs:'Aayalolo BRT; GUMAP primary beneficiary' },
   { id:'MMT', label:'Metro Mass Transit', abbr:'MMT', group:'ops',
-    role:'Largest formal bus operator with a national network. State-supported public-private company. Selected as pilot operator for Ghana\'s first public e-bus deployment. Carrier of Tap n\'Go digital ticketing. A testing ground for state-driven digitalisation and electrification.',
+    role:'Largest formal bus operator with a national network. State-supported public-private company. Selected as pilot operator for Ghana\'s first public e-bus deployment (10 buses). Carrier of Tap n\'Go digital ticketing. A testing ground for state-driven digitalisation and electrification.',
     programs:'Tap n\'Go cashless ticketing (2024); E-bus pilot Accra (Nov 2024); National bus services' },
 
   // Paratransit associations
   { id:'GPRTU', label:'GPRTU', abbr:'GPRTU', group:'para',
-    role:'Ghana Private Road Transport Union. Largest representative body for private road transport operators, especially trotro (minibus) drivers. Central voice of the informal and semi-formal paratransit sector. Must be actively engaged in any realistic electrification strategy.',
-    programs:'Fare negotiations with MoT; Sector discipline & compliance; Digitalisation & reform dialogue' },
+    role:'Ghana Private Road Transport Union. Largest representative body for private road transport operators, especially trotro (minibus) drivers. Central voice of the informal and semi-formal paratransit sector.',
+    programs:'Fare negotiations with MoT; Sector discipline & compliance' },
   { id:'PROTOA', label:'PROTOA', abbr:'PROTOA', group:'para',
-    role:'Second-largest transport organisation. Represents private vehicle operators and owners. Member of the Ghana Road Transport Coordinating Council. Part of the private operator bloc alongside GPRTU.',
-    programs:'Operator & owner representation; Ghana Road Transport Coordinating Council membership' },
+    role:'Second-largest transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU.',
+    programs:'Operator & owner representation' },
 
   // Private EV actors
   { id:'SolarTaxi', label:'Solar Taxi', abbr:'Solar Taxi', group:'priv',
@@ -231,38 +278,38 @@ const nodes = [
     programs:'EV fleet & sales; Charging infrastructure; Article 6 programme with Swedish Energy Agency & South Pole (2025)' },
   { id:'SmartTransyt', label:'SmartTransyt', abbr:'SmartTransyt', group:'priv',
     role:'Private e-bus and software platform for urban passenger transport in Accra. Relevant at the intersection of paratransit modernisation, digital routing and cashless payment. No formal regulatory mandate.',
-    programs:'Electric bus services (Accra); Routing optimisation; Cashless payments; Passenger app' },
+    programs:'Electric bus services (Accra); Cashless payments; Passenger app' },
   { id:'DriveEV', label:'DriveEV GH', abbr:'DriveEV GH', group:'priv',
-    role:'EV dealer and provider of charging and service solutions. Building a private EV ecosystem with infrastructure and servicing partnerships. Operates within the Energy Commission regulatory framework.',
+    role:'EV dealer and provider of charging and service solutions. Building a private EV ecosystem with infrastructure and servicing partnerships.',
     programs:'EV sales; Home & public charging; Service solutions; Infrastructure partnerships' },
 
   // Research & knowledge
-  { id:'RCEES', label:'RCEES / UEnR', abbr:'RCEES', group:'know',
-    role:'Regional Centre for Energy and Environmental Sustainability at UEnR. Key policy and knowledge actor in the EV field. Leads the technical preparation of the EV Policy Working Group. Organises government–industry consultations and coordinates with UNEP/NDC Action.',
-    programs:'EV Policy Working Group (technical lead); Regulatory dialogues; MoNaL research; UNEP/NDC Action collaboration' },
+  { id:'RCEES', label:'RCEES', abbr:'RCEES', group:'know',
+    role:'Regional Centre for Energy and Environmental Sustainability. Key policy and knowledge actor in the EV field. Leads the technical preparation of the EV Policy Working Group. Organises government–industry consultations and coordinates with UNEP/NDC Action.',
+    programs:'EV Policy Working Group (technical lead)' },
   { id:'KNUST', label:'KNUST', abbr:'KNUST', group:'know',
     role:'Kwame Nkrumah University of Science and Technology. Capacity building and research in transport planning and sustainable mobility. Direct GUMAP beneficiary, training professionals for the urban transport system.',
-    programs:'CUMT/TRECK; MSc Transport Systems; GUMAP training programme; SECO & EPFL collaboration' },
+    programs:'MSc Transport Systems; GUMAP training programme; SECO & EPFL collaboration' },
   { id:'CEDA', label:'CEDA', abbr:'CEDA', group:'know',
     role:'Centre for Extractives and Development Africa. Policy research on just and viable transition. 2026 gap analysis highlights high market potential for electric 2/3-wheelers, constrained by import tariffs, regulatory ambiguity and institutional fragmentation.',
-    programs:'E-2/3W gap analysis (2026); Fiscal incentives research; GESI & political economy' },
+    programs:'E-2/3W gap analysis (2026); Fiscal incentives research' },
 
   // Funders & international partners
   { id:'SECO', label:'SECO', abbr:'SECO', group:'fund',
-    role:'Swiss State Secretariat for Economic Affairs. Most important operational donor for urban mobility governance in Greater Accra. Finances GUMAP through MLGCRA, strengthening GAPTE, MMDAs and KNUST.',
+    role:'Swiss State Secretariat for Economic Affairs. Finances GUMAP (Ghana Urban Mobility and Accessibility Project) through MLGRD, strengthening GAPTE, MMDAs and capacity building via KNUST.',
     programs:'GUMAP (2016–2025); GUMAP II (from 2026, confirmed in state budget)' },
   { id:'AFD', label:'AFD', abbr:'AFD', group:'fund',
-    role:'Agence Française de Développement. Historically central funder of urban mobility reform in Accra and Kumasi. Co-financed the institutional and infrastructure base for BRT/QBS and GAPTE. Re-engaged in e-bus financing discussions in 2023. Co-financed with EU a Mobility Plan for Kumasi — the plan currently remains on hold under the new administration.',
-    programs:'Urban mobility project 2008–2017; E-bus financing consultations (2023); EU-AFD Kumasi Mobility Plan (shelved)' },
+    role:'Agence Française de Développement. Historically central funder of urban mobility reform in Accra and Kumasi. Co-financed the institutional and infrastructure base for BRT/QBS and GAPTE. Re-engaged in e-bus financing discussions in 2023.',
+    programs:'Urban mobility project 2008–2017; E-bus financing consultations (2023); EU-AFD Kumasi Mobility Plan (KUMAP)' },
   { id:'WorldBank', label:'World Bank', abbr:'World Bank', group:'fund',
-    role:'Formative architect of Accra urban transport reform. Financed the Ghana Urban Transport Project and BRT institutional reforms. Co-financed with EU the BRT in Kumasi — the new administration considers it too costly and the project is on hold, pending realignment by MoT.',
+    role:'Formative architect of Accra urban transport reform. Financed the Ghana Urban Transport Project and BRT institutional reforms. Co-financed with EU the Mobility Plan for Kumasi (KUMAP), proposing a BTR-based mass transit system. The plan currently remains on hold pending realignment by MoT due to cost considerations.',
     programs:'Ghana Urban Transport Project; BRT/QBS institutional reform; ACE framework (RCEES origin); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
   { id:'EU', label:'European Union', abbr:'EU', group:'fund',
-    role:'Strategic development partner for green growth and sustainable urban mobility. Co-financed with AFD a Mobility Plan for Kumasi — currently shelved by the new administration. Co-financed with World Bank the Kumasi BRT — new administration considers it too costly; project is on hold pending realignment by MoT.',
-    programs:'Team Europe / Global Gateway; EU-AFD Kumasi Mobility Plan (shelved); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
-  { id:'UNEP', label:'UNEP / CTCN', abbr:'UNEP/CTCN', group:'fund',
-    role:'Created the e-bus roadmap and market study for Accra and Kumasi in 2022. Conducted stakeholder and financing missions in 2023. Organised a Ghana–Senegal learning exchange in 2024. Key assembler of the de-facto e-bus project coalition, bringing MoT, EPA, Energy Commission, MMT, GAPTE and financing actors into shared dialogue.',
-    programs:'E-bus roadmap & market study (2022); Stakeholder & financing missions (2023); Ghana–Senegal learning exchange (2024)' },
+    role:'Strategic development partner for green growth and sustainable urban mobility. Co-financed with World Bank the Mobility Plan for Kumasi (KUMAP), proposing a BTR-based mass transit system. The plan currently remains on hold pending realignment by MoT due to cost considerations.',
+    programs:'Team Europe / Global Gateway; Kumasi Urban Mobility and Accessibility Project (KUMAP)' },
+  { id:'UNEP', label:'UNEP', abbr:'UNEP', group:'fund',
+    role:'Created the e-bus roadmap and market study for Accra and Kumasi in 2022. Key assembler of the EV Policy Working Group, bringing MoT, EPA, Energy Commission, MMT, GAPTE and financing actors into shared dialogue.',
+    programs:'National Electric Mobility Roadmap in Ghana (2022); EV Policy Working Group (facilitator)' },
   { id:'SwedEA', label:'Swedish Energy Agency', abbr:'SwedEA', group:'fund',
     role:'Article 6 bilateral partner for Ghana–Sweden carbon market cooperation. Core counterpart for Solar Taxi\'s EV programme under the official Article 6 framework established in 2025.',
     programs:'Ghana–Sweden Article 6 bilateral cooperation (2025); Solar Taxi EV programme' },
@@ -286,7 +333,7 @@ const POS = {
   SwedEA:     { x: 1230, y: 95  },
 
   // ── Band 2: Government cluster (center) ──
-  MLGCRA:     { x: 560,  y: 280 },
+  MLGRD:     { x: 560,  y: 280 },
   MoT:        { x: 720,  y: 265 },
   MoEnGT:     { x: 880,  y: 280 },
   MESTI:      { x: 1000, y: 285 },
@@ -320,7 +367,7 @@ const edges = [
   // Formal oversight (blue)
   { from:'MoT',         to:'MMT',          type:'oversight' },
   { from:'MoT',         to:'DVLA',         type:'oversight' },
-  { from:'MLGCRA',      to:'GAPTE',        type:'oversight' },
+  { from:'MLGRD',      to:'GAPTE',        type:'oversight' },
   { from:'MoEnGT',      to:'EnergyComm',   type:'oversight' },
   { from:'MESTI',       to:'CMO',          type:'oversight' },
   { from:'EnergyComm',  to:'SolarTaxi',    type:'oversight' },
@@ -332,13 +379,13 @@ const edges = [
   // Interministerial coordination (grey solid, no dashes)
   { from:'MoT',    to:'MoEnGT',  type:'coord' },
   { from:'MoT',    to:'MESTI',   type:'coord' },
-  { from:'MoT',    to:'MLGCRA',  type:'coord' },
+  { from:'MoT',    to:'mlgrd',  type:'coord' },
   { from:'RCEES',  to:'MoT',     type:'coord' },
   { from:'KNUST',  to:'GAPTE',   type:'coord' },
   { from:'CEDA',   to:'MoT',     type:'coord' },
 
   // Funding flows (cyan)
-  { from:'SECO',      to:'MLGCRA',   type:'funding' },
+  { from:'SECO',      to:'mlgrd',   type:'funding' },
   { from:'SECO',      to:'GAPTE',    type:'funding' },
   { from:'SECO',      to:'KNUST',    type:'funding' },
   { from:'AFD',       to:'GAPTE',    type:'funding' },
@@ -398,7 +445,7 @@ const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
 
 function nodeR(n) {
-  return ['MoT','MLGCRA','MoEnGT','MESTI'].includes(n.id) ? 34 : 27;
+  return ['MoT','mlgrd','MoEnGT','MESTI'].includes(n.id) ? 34 : 27;
 }
 
 function hexToRgb(hex) {
@@ -606,29 +653,71 @@ document.getElementById('detail-close').addEventListener('click', resetHL);
 svg.addEventListener('click', resetHL);
 
 // Filters
-const active = new Set(['gov','ops','para','priv','know','fund']);
-document.querySelectorAll('.filter-btn[data-group]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const gr = btn.dataset.group;
-    if (gr === 'all') {
-      const allOn = active.size === 6;
-      active.clear();
-      if (!allOn) ['gov','ops','para','priv','know','fund'].forEach(g => active.add(g));
-      document.querySelectorAll('.filter-btn[data-group]').forEach(b => b.classList.toggle('active', !allOn));
-    } else {
-      if (active.has(gr)) { active.delete(gr); btn.classList.remove('active'); }
-      else { active.add(gr); btn.classList.add('active'); }
+const groupNames = ['gov', 'ops', 'para', 'priv', 'know', 'fund'];
+const activeGroups = new Set(groupNames);
+const filterButtons = [...document.querySelectorAll('.filter-btn[data-group]')];
+const allButton = document.querySelector('.filter-btn[data-group="all"]');
+
+function updateFilterUI() {
+  const allSelected = activeGroups.size === groupNames.length;
+
+  filterButtons.forEach(btn => {
+    const group = btn.dataset.group;
+    const isSelected = allSelected || activeGroups.has(group);
+
+    btn.classList.toggle('selected', isSelected);
+    btn.classList.toggle('inactive', !isSelected);
+
+    if (group === 'all') {
+      btn.classList.toggle('all-selected', allSelected);
     }
-    nLayer.querySelectorAll('g[data-id]').forEach(g => {
-      g.style.opacity = active.has(nodeMap[g.dataset.id].group) ? '' : '0.04';
-    });
-    eLayer.querySelectorAll('line').forEach(l => {
-      const fa = nodeMap[l.dataset.from], fb = nodeMap[l.dataset.to];
-      if (!fa||!fb) return;
-      l.style.opacity = (active.has(fa.group) && active.has(fb.group)) ? '' : '0.03';
-    });
+  });
+}
+
+function updateVisibility() {
+  const showAll = activeGroups.size === groupNames.length;
+
+  nLayer.querySelectorAll('g[data-id]').forEach(g => {
+    const node = nodeMap[g.dataset.id];
+    g.style.display = showAll || activeGroups.has(node.group) ? '' : 'none';
+  });
+
+  eLayer.querySelectorAll('line').forEach(l => {
+    const fromNode = nodeMap[l.dataset.from];
+    const toNode = nodeMap[l.dataset.to];
+    const visible = showAll || (activeGroups.has(fromNode.group) && activeGroups.has(toNode.group));
+    l.style.display = visible ? '' : 'none';
+  });
+}
+
+filterButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.dataset.group;
+
+    if (group === 'all') {
+      activeGroups.clear();
+      groupNames.forEach(g => activeGroups.add(g));
+    } else {
+      if (activeGroups.has(group)) {
+        activeGroups.delete(group);
+      } else {
+        activeGroups.add(group);
+      }
+
+      if (activeGroups.size === groupNames.length) {
+        allButton.classList.add('all-selected');
+      } else {
+        allButton.classList.remove('all-selected');
+      }
+    }
+
+    updateFilterUI();
+    updateVisibility();
   });
 });
+
+updateFilterUI();
+updateVisibility();
 
 // Pan & zoom
 let vx=0, vy=0, sc=1, drag=false, lx, ly;
