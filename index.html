@@ -38,6 +38,47 @@
   }
   #header p { font-size: 10px; color: var(--text-faint); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
 
+  #ai-info-wrap {
+    position: relative;
+    pointer-events: auto;
+    z-index: 20;
+    width: 34px;
+    display: flex;
+    justify-content: center;
+  }
+  #ai-info-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text-dim);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  #ai-info-btn:hover { border-color: rgba(52,92,138,0.45); color: var(--text); }
+  #ai-info-pop {
+    position: absolute;
+    right: 40px;
+    bottom: 0;
+    width: 260px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 11px;
+    color: var(--text-dim);
+    font-size: 10px;
+    line-height: 1.5;
+    display: none;
+    box-shadow: 0 4px 18px rgba(31, 51, 77, 0.08);
+  }
+  #ai-info-pop.visible { display: block; }
+
   #legend {
     position: absolute; bottom: 24px; left: 24px;
     pointer-events: auto; background: var(--bg2);
@@ -141,7 +182,12 @@
 
   #controls {
     position: absolute; bottom: 24px; right: 24px;
-    pointer-events: auto; display: flex; flex-direction: column; gap: 5px;
+    pointer-events: auto; display: flex; flex-direction: column; gap: 5px; align-items: flex-end;
+  }
+  #controls-bottom {
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
   .ctrl-btn {
     background: var(--bg2); border: 1px solid var(--border);
@@ -225,7 +271,15 @@
 <div id="controls">
   <button class="ctrl-btn" id="zoom-in">+</button>
   <button class="ctrl-btn" id="zoom-out">−</button>
-  <button class="ctrl-btn" id="zoom-reset" style="font-size:11px">⌂</button>
+  <div id="controls-bottom">
+    <div id="ai-info-wrap">
+      <button id="ai-info-btn" aria-label="Info about AI usage" aria-expanded="false">i</button>
+      <div id="ai-info-pop" role="note">
+        This application was created with the assistance of AI (GPT-5.3-Codex via GitHub Copilot). All content was compiled and verified manually.
+      </div>
+    </div>
+    <button class="ctrl-btn" id="zoom-reset" style="font-size:11px">⌂</button>
+  </div>
 </div>
 
 <script>
@@ -718,6 +772,25 @@ filterButtons.forEach(btn => {
 
 updateFilterUI();
 updateVisibility();
+
+// AI info popover
+const aiInfoBtn = document.getElementById('ai-info-btn');
+const aiInfoPop = document.getElementById('ai-info-pop');
+
+aiInfoBtn.addEventListener('click', ev => {
+  ev.stopPropagation();
+  const open = aiInfoPop.classList.toggle('visible');
+  aiInfoBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
+document.addEventListener('click', ev => {
+  if (!aiInfoPop.classList.contains('visible')) return;
+  const inside = aiInfoBtn.contains(ev.target) || aiInfoPop.contains(ev.target);
+  if (!inside) {
+    aiInfoPop.classList.remove('visible');
+    aiInfoBtn.setAttribute('aria-expanded', 'false');
+  }
+});
 
 // Pan & zoom
 let vx=0, vy=0, sc=1, drag=false, lx, ly;
