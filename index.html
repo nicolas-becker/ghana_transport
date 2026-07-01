@@ -325,6 +325,9 @@ const nodes = [
   { id:'PROTOA', label:'PROTOA', abbr:'PROTOA', group:'para',
     role:'Second-largest transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU.',
     programs:'Operator & owner representation' },
+  { id:'COOP', label:'Co-op', abbr:'Co-op', group:'para',
+    role:'Transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU and PROTOA.',
+    programs:'Operator & owner representation' },
 
   // Private EV actors
   { id:'SolarTaxi', label:'Solar Taxi', abbr:'Solar Taxi', group:'priv',
@@ -355,7 +358,7 @@ const nodes = [
   { id:'AFD', label:'AFD', abbr:'AFD', group:'fund',
     role:'Agence Française de Développement. Historically central funder of urban mobility reform in Accra and Kumasi. Co-financed the institutional and infrastructure base for BRT/QBS and GAPTE. Re-engaged in e-bus financing discussions in 2023.',
     programs:'Urban mobility project 2008–2017; E-bus financing consultations (2023); EU-AFD Kumasi Mobility Plan (KUMAP)' },
-  { id:'WorldBank', label:'World Bank', abbr:'World Bank', group:'fund',
+  { id:'WorldBank', label:'World Bank', abbr:'WB', group:'fund',
     role:'Formative architect of Accra urban transport reform. Financed the Ghana Urban Transport Project and BRT institutional reforms. Co-financed with EU the Mobility Plan for Kumasi (KUMAP), proposing a BTR-based mass transit system. The plan currently remains on hold pending realignment by MoT due to cost considerations.',
     programs:'Ghana Urban Transport Project; BRT/QBS institutional reform; ACE framework (RCEES origin); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
   { id:'EU', label:'European Union', abbr:'EU', group:'fund',
@@ -407,6 +410,7 @@ const POS = {
   MMT:        { x: 690,  y: 650 },
   GPRTU:      { x: 210,  y: 660 },
   PROTOA:     { x: 330,  y: 710 },
+  COOP:       { x: 270,  y: 685 },
   SmartTransyt:{ x: 930, y: 620 },
   SolarTaxi:  { x: 1090, y: 620 },
   DriveEV:    { x: 1240, y: 680 },
@@ -462,7 +466,7 @@ const edges = [
   { from:'MoT',   to:'GPRTU',  type:'negotiation' },
   { from:'GPRTU', to:'MoT',    type:'negotiation' },
   { from:'MoT',   to:'PROTOA', type:'negotiation' },
-  { from:'GPRTU', to:'PROTOA', type:'negotiation' },
+  { from:'MoT',   to:'COOP', type:'negotiation' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
