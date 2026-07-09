@@ -228,7 +228,7 @@
 
 <div id="header">
   <h1>Ghana — Transport Sector</h1>
-  <p>Actors &amp; Stakeholders · Network</p>
+  <p>Actors &amp; Stakeholders</p>
 </div>
 
 <div id="filters">
@@ -300,6 +300,15 @@ const nodes = [
   { id:'MESTI', label:'Ministry of Environment', abbr:'MESTI', group:'gov',
     role:'Official climate and environment policy body. Authorisation authority for Ghana\'s Article 6 carbon market activities. Coordinates NDC agenda and EV-related climate processes. Oversees EPA.',
     programs:'NDC & climate agenda; Article 6.2 cooperative approach governance; EPA oversight' },
+  { id:'MoF', label:'Ministry of Finance', abbr:'MoF', group:'gov',
+    role:'Controls fiscal policy, EV import tax and duty waivers, and approval of public investment and borrowing for transport projects. Acts as a gatekeeper for transport financing decisions.',
+    programs:'Fiscal policy and tax instruments; Public investment approvals; Sovereign borrowing approvals for transport' },
+  { id:'MRH', label:'Ministry of Roads and Highways', abbr:'MRH', group:'gov',
+    role:'Distinct from MoT, responsible for road infrastructure construction and maintenance rather than transport service regulation. Coordinates on road elements intersecting with e-mobility and BRT.',
+    programs:'Road construction and maintenance; Charging point siting interface; Dedicated lane and design standards coordination' },
+  { id:'EMPWG', label:'E-Mobility Policy Working Group', abbr:'EV WG', group:'gov',
+    role:'Inter-ministerial group inaugurated in Nov 2024 by MoT, with representatives from energy, transport, finance, environment, trade, standards agencies and private sector actors to guide EV policy implementation.',
+    programs:'EV policy implementation coordination; Inter-ministerial and public-private alignment platform' },
   { id:'EnergyComm', label:'Energy Commission', abbr:'Energy Comm.', group:'gov',
     role:'Regulates EV charging infrastructure, energy use and battery-swap systems. Operates the Drive Electric Initiative since 2019. Issues mandatory permits for public charging and swap operators; a regulatory gateway for all EV market actors.',
     programs:'Drive Electric Initiative (2019–); EV Baseline Survey 2022; Public charging & swap register; Permit framework for charging/swap' },
@@ -325,9 +334,9 @@ const nodes = [
   { id:'PROTOA', label:'PROTOA', abbr:'PROTOA', group:'para',
     role:'Second-largest transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU.',
     programs:'Operator & owner representation' },
-  { id:'COOP', label:'Co-op', abbr:'Co-op', group:'para',
-    role:'Transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU and PROTOA.',
-    programs:'Operator & owner representation' },
+  { id:'COOP', label:'Ghana Co-operative Transport Association', abbr:'Co-op', group:'para',
+    role:'Third-largest transport organisation. Represents private vehicle operators and owners. Part of the private operator bloc alongside GPRTU and PROTOA.',
+    programs:'Operator and owner representation' },
 
   // Private EV actors
   { id:'SolarTaxi', label:'Solar Taxi', abbr:'Solar Taxi', group:'priv',
@@ -339,10 +348,19 @@ const nodes = [
   { id:'DriveEV', label:'DriveEV GH', abbr:'DriveEV GH', group:'priv',
     role:'EV dealer and provider of charging and service solutions. Building a private EV ecosystem with infrastructure and servicing partnerships.',
     programs:'EV sales; Home & public charging; Service solutions; Infrastructure partnerships' },
+  { id:'WAHU', label:'Wahu Mobility', abbr:'WAHU', group:'priv',
+    role:'Women-led Ghanaian e-mobility company established in 2022. Manufactures electric bicycles tailored to local terrain and offers rider safety training and insurance to support mobility entrepreneurship.',
+    programs:'Electric bicycle manufacturing; Rider training; Insurance-enabled mobility entrepreneurship' },
+  { id:'iJANU', label:'iJANU Ghana Limited', abbr:'iJANU', group:'priv',
+    role:'E-mobility technology company focused on ecological and equitable mobility solutions in African markets.',
+    programs:'E-mobility technology solutions; Equitable mobility platforms' },
+  { id:'Kofa', label:'Kofa', abbr:'Kofa', group:'priv',
+    role:'E-mobility company active in Ghana since 2021. Sells electric motorcycles and deploys battery swap stations for the Volta motorcycle platform. Launched Ghana\'s first connected battery swap network in 2023.',
+    programs:'Electric motorcycles; Connected battery swap network (2023); Swap station deployment' },
 
   // Research & knowledge
   { id:'RCEES', label:'RCEES', abbr:'RCEES', group:'know',
-    role:'Regional Centre for Energy and Environmental Sustainability. Key policy and knowledge actor in the EV field. Leads the technical preparation of the EV Policy Working Group. Organises government–industry consultations and coordinates with UNEP/NDC Action.',
+    role:'Regional Centre for Energy and Environmental Sustainability based at the University of Energy and Natural Resources (UENR). Key policy and knowledge actor in the EV field. Leads the technical preparation of the EV Policy Working Group. Organises government–industry consultations and coordinates with UNEP/NDC Action.',
     programs:'EV Policy Working Group (technical lead)' },
   { id:'KNUST', label:'KNUST', abbr:'KNUST', group:'know',
     role:'Kwame Nkrumah University of Science and Technology. Capacity building and research in transport planning and sustainable mobility. Direct GUMAP beneficiary, training professionals for the urban transport system.',
@@ -350,6 +368,9 @@ const nodes = [
   { id:'CEDA', label:'CEDA', abbr:'CEDA', group:'know',
     role:'Centre for Extractives and Development Africa. Policy research on just and viable transition. 2026 gap analysis highlights high market potential for electric 2/3-wheelers, constrained by import tariffs, regulatory ambiguity and institutional fragmentation.',
     programs:'E-2/3W gap analysis (2026); Fiscal incentives research' },
+  { id:'GFD', label:'Women Mobility CSOs + GFD', abbr:'GFD+CSOs', group:'know',
+    role:'Civil society groups advocating for accessibility and gender-responsive transport planning. GFD is a national umbrella organisation advocating for persons with disabilities in Ghana.',
+    programs:'Inclusive mobility advocacy; Accessibility standards input; Gender-responsive transport planning' },
 
   // Funders & international partners
   { id:'SECO', label:'SECO', abbr:'SECO', group:'fund',
@@ -358,6 +379,9 @@ const nodes = [
   { id:'AFD', label:'AFD', abbr:'AFD', group:'fund',
     role:'Agence Française de Développement. Historically central funder of urban mobility reform in Accra and Kumasi. Co-financed the institutional and infrastructure base for BRT/QBS and GAPTE. Re-engaged in e-bus financing discussions in 2023.',
     programs:'Urban mobility project 2008–2017; E-bus financing consultations (2023); EU-AFD Kumasi Mobility Plan (KUMAP)' },
+  { id:'AfDB', label:'African Development Bank', abbr:'AfDB', group:'fund',
+    role:'Multilateral development bank providing concessional financing for African infrastructure, including transport. In Ghana, financed high-priority projects such as the USD 83.9M African Development Fund loan for the four-tier Pokuase Interchange under the Accra Urban Transport Project approved in 2016.',
+    programs:'Accra Urban Transport Project (2016); Pokuase Interchange ADF loan (USD 83.9M); Corridor mobility upgrades' },
   { id:'WorldBank', label:'World Bank', abbr:'WB', group:'fund',
     role:'Formative architect of Accra urban transport reform. Financed the Ghana Urban Transport Project and BRT institutional reforms. Co-financed with EU the Mobility Plan for Kumasi (KUMAP), proposing a BTR-based mass transit system. The plan currently remains on hold pending realignment by MoT due to cost considerations.',
     programs:'Ghana Urban Transport Project; BRT/QBS institutional reform; ACE framework (RCEES origin); EU–World Bank Kumasi BRT (on hold, MoT realignment pending)' },
@@ -382,38 +406,46 @@ const nodes = [
 // ─────────────────────────────────────────────────────────────────────────────
 const POS = {
   // ── Band 1: Funders ──
-  SECO:       { x: 170,  y: 64  },
-  AFD:        { x: 430,  y: 56  },
-  EU:         { x: 625,  y: 56  },
-  WorldBank:  { x: 820,  y: 56  },
-  UNEP:       { x: 1060, y: 64  },
-  SwedEA:     { x: 1230, y: 95  },
+  SECO: { x: 220, y: 90 },
+  AfDB: { x: 440, y: 90 },
+  AFD: { x: 660, y: 90 },
+  EU: { x: 880, y: 90 },
+  WorldBank: { x: 1100, y: 90 },
+  UNEP: { x: 1320, y: 90 },
+  SwedEA: { x: 1540, y: 90 },
 
   // ── Band 2: Government cluster (center) ──
-  MLGRD:     { x: 560,  y: 280 },
-  MoT:        { x: 720,  y: 265 },
-  MoEnGT:     { x: 880,  y: 280 },
-  MESTI:      { x: 1000, y: 285 },
+  MRH: { x: 520, y: 280 },
+  MLGRD: { x: 700, y: 280 },
+  MoT: { x: 880, y: 250 },
+  MoEnGT: { x: 1060, y: 280 },
+  MESTI: { x: 1240, y: 280 },
+  MoF: { x: 1420, y: 280 },
+  EMPWG: { x: 970, y: 390 },
 
   // ── Research column (left) ──
-  RCEES:      { x: 190,  y: 300 },
-  KNUST:      { x: 170,  y: 430 },
-  CEDA:       { x: 170,  y: 520 },
+  RCEES: { x: 210, y: 320 },
+  KNUST: { x: 210, y: 460 },
+  CEDA: { x: 210, y: 600 },
+  GFD: { x: 210, y: 740 },
 
   // ── Band 3: Government agencies ──
-  DVLA:       { x: 620,  y: 415 },
-  EnergyComm: { x: 800,  y: 415 },
-  CMO:        { x: 980,  y: 415 },
+  DVLA: { x: 740, y: 520 },
+  EnergyComm: { x: 970, y: 520 },
+  CMO: { x: 1200, y: 520 },
 
   // ── Band 4: Operators (separated lanes) ──
-  GAPTE:      { x: 520,  y: 620 },
-  MMT:        { x: 690,  y: 650 },
-  GPRTU:      { x: 210,  y: 660 },
-  PROTOA:     { x: 330,  y: 710 },
-  COOP:       { x: 270,  y: 685 },
-  SmartTransyt:{ x: 930, y: 620 },
-  SolarTaxi:  { x: 1090, y: 620 },
-  DriveEV:    { x: 1240, y: 680 },
+  GPRTU: { x: 470, y: 820 },
+  COOP: { x: 640, y: 820 },
+  PROTOA: { x: 810, y: 820 },
+  GAPTE: { x: 610, y: 700 },
+  MMT: { x: 860, y: 700 },
+  SmartTransyt:{ x: 1040, y: 700 },
+  WAHU: { x: 1160, y: 820 },
+  SolarTaxi: { x: 1310, y: 700 },
+  Kofa: { x: 1480, y: 760 },
+  DriveEV: { x: 1480, y: 870 },
+  iJANU: { x: 1310, y: 830 },
 };
 
 nodes.forEach(n => { n.x = POS[n.id].x; n.y = POS[n.id].y; });
@@ -425,29 +457,54 @@ const edges = [
   // Formal oversight (blue)
   { from:'MoT',         to:'MMT',          type:'oversight' },
   { from:'MoT',         to:'DVLA',         type:'oversight' },
-  { from:'MLGRD',      to:'GAPTE',        type:'oversight' },
+  { from:'MoT',         to:'EMPWG',        type:'oversight' },
+  { from:'MLGRD',       to:'GAPTE',        type:'oversight' },
   { from:'MoEnGT',      to:'EnergyComm',   type:'oversight' },
   { from:'MESTI',       to:'CMO',          type:'oversight' },
   { from:'EnergyComm',  to:'SolarTaxi',    type:'oversight' },
   { from:'EnergyComm',  to:'DriveEV',      type:'oversight' },
   { from:'EnergyComm',  to:'SmartTransyt', type:'oversight' },
+  { from:'EnergyComm',  to:'WAHU',         type:'oversight' },
+  { from:'EnergyComm',  to:'iJANU',        type:'oversight' },
+  { from:'EnergyComm',  to:'Kofa',         type:'oversight' },
   { from:'DVLA',        to:'MMT',          type:'oversight' },
   { from:'DVLA',        to:'SolarTaxi',    type:'oversight' },
+  { from:'DVLA',        to:'WAHU',         type:'oversight' },
+  { from:'DVLA',        to:'Kofa',         type:'oversight' },
 
   // Interministerial coordination (grey solid, no dashes)
   { from:'MoT',    to:'MoEnGT',  type:'coord' },
   { from:'MoT',    to:'MESTI',   type:'coord' },
-  { from:'MoT',    to:'mlgrd',  type:'coord' },
+  { from:'MoT',    to:'MLGRD',  type:'coord' },
   { from:'RCEES',  to:'MoT',     type:'coord' },
   { from:'KNUST',  to:'GAPTE',   type:'coord' },
   { from:'CEDA',   to:'MoT',     type:'coord' },
+  { from:'MoT',   to:'MoF',     type:'coord' },
+  { from:'MoT',   to:'MRH',     type:'coord' },
+  { from:'MRH',   to:'MLGRD',   type:'coord' },
+  { from:'MRH',   to:'GAPTE',   type:'coord' },
+  { from:'EMPWG', to:'MoT',     type:'coord' },
+  { from:'EMPWG', to:'MoEnGT',  type:'coord' },
+  { from:'EMPWG', to:'MESTI',   type:'coord' },
+  { from:'EMPWG', to:'MoF',     type:'coord' },
+  { from:'EMPWG', to:'EnergyComm', type:'coord' },
+  { from:'RCEES', to:'EMPWG',   type:'coord' },
+  { from:'RCEES', to:'MoT',     type:'coord' },
+  { from:'KNUST', to:'GAPTE',   type:'coord' },
+  { from:'CEDA',  to:'MoT',     type:'coord' },
+  { from:'GFD',   to:'MLGRD',   type:'coord' },
+  { from:'GFD',   to:'GAPTE',   type:'coord' },
+  { from:'GFD',   to:'MoT',     type:'coord' },
 
   // Funding flows (cyan)
-  { from:'SECO',      to:'mlgrd',   type:'funding' },
+  { from:'SECO',      to:'MLGRD',   type:'funding' },
   { from:'SECO',      to:'GAPTE',    type:'funding' },
   { from:'SECO',      to:'KNUST',    type:'funding' },
   { from:'AFD',       to:'GAPTE',    type:'funding' },
   { from:'AFD',       to:'MoT',      type:'funding' },
+  { from:'AfDB',      to:'MRH',      type:'funding' },
+  { from:'AfDB',      to:'MoF',      type:'funding' },
+  { from:'AfDB',      to:'MoT',       type:'funding' },
   { from:'WorldBank', to:'GAPTE',    type:'funding' },
   { from:'WorldBank', to:'RCEES',    type:'funding' },
   { from:'UNEP',      to:'MMT',      type:'funding' },
@@ -496,14 +553,14 @@ const svg    = document.getElementById('graph');
 const zLayer = document.getElementById('zones-layer');
 const eLayer = document.getElementById('edges-layer');
 const nLayer = document.getElementById('nodes-layer');
-const W = 1400, H = 760;
+const W = 1680, H = 980;
 svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
 const nodeMap = {};
 nodes.forEach(n => nodeMap[n.id] = n);
 
 function nodeR(n) {
-  return ['MoT','mlgrd','MoEnGT','MESTI'].includes(n.id) ? 34 : 27;
+  return ['MoT','MLGRD','MoEnGT','MESTI'].includes(n.id) ? 34 : 27;
 }
 
 function hexToRgb(hex) {
